@@ -1,6 +1,6 @@
 package userresponse
 
-import "github.com/mehrab-karimpour/golang-game/entity"
+import "gameapp/entity"
 
 type RegisterResponse struct {
 	User entity.User

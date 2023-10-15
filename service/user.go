@@ -1,16 +1,13 @@
-package userservice
+package service
 
 import (
-	"github.com/mehrab-karimpour/golang-game/entity"
-	"github.com/mehrab-karimpour/golang-game/request/userrequest"
-	"github.com/mehrab-karimpour/golang-game/response/userresponse"
+	"gameapp/repository"
+	"gameapp/request/userrequest"
+	"gameapp/response/userresponse"
 )
 
-type Repository interface {
-	Store(u userrequest.RegisterRequest) (entity.User, error)
-}
 type Service struct {
-	repo Repository
+	repo repository.User
 }
 
 func (s Service) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {

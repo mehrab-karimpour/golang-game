@@ -5,6 +5,7 @@ type Game struct {
 	CategoryId  uint
 	Title       string
 	Description string
+	StartTime   string
 	Users       []User
 	Questions   []Question
 }

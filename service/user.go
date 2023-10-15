@@ -6,18 +6,18 @@ import (
 	"gameapp/response/userresponse"
 )
 
-type Service struct {
-	repo repository.User
+type User struct {
+	Repo repository.User
 }
 
-func (s Service) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {
+func (s User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {
 	validationErrors := req.Validate()
 
 	if validationErrors != nil {
 		return userresponse.RegisterResponse{}, validationErrors
 	}
 
-	newUser, storeErr := s.repo.Store(req)
+	newUser, storeErr := s.Repo.Store(req)
 	if storeErr != nil {
 		return userresponse.RegisterResponse{}, storeErr
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 type RegisterRequest struct {
-	FirstName   string `validate:"required,string"`
+	FirstName   string `validate:"required"`
 	LastName    string `validate:"required"`
 	PhoneNumber string `validate:"required"`
 	Password    string `validate:"required"`

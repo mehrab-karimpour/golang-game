@@ -2,32 +2,20 @@ package main
 
 import (
 	"fmt"
-	"gameapp/repository"
 	_ "gameapp/repository/mysql"
-	"gameapp/request/userrequest"
-	"gameapp/service"
+	"gameapp/route"
 	_ "gameapp/service"
+	"net/http"
 )
 
 func main() {
 
-	myDb := repository.DataBaseService()
+	route.Route()
 
-	var userService = service.User{
-		Repo: myDb,
-	}
+	err := http.ListenAndServe("localhost:8000", nil)
+	if err != nil {
+		fmt.Println(err)
 
-	registerResponse, registerError := userService.Register(userrequest.RegisterRequest{
-		FirstName:   "mehrab",
-		LastName:    "karimpour",
-		Password:    "1212",
-		PhoneNumber: "09180131105",
-	})
-	if registerError != nil {
-		fmt.Println("registerError", registerError)
 		return
 	}
-
-	fmt.Println(registerResponse)
-
 }

@@ -12,26 +12,30 @@ type User struct {
 	Repo repository.User
 }
 
-func (s User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {
+func (u User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {
+	var response userresponse.RegisterResponse
+
 	validationErrors := req.Validate()
-	userAlreadyExists, userAlreadyExistsErr := s.Repo.FirstWhere("phone_number", req.PhoneNumber)
+	if validationErrors != nil || !u.phoneNumberIsUnique(req.PhoneNumber) {
 
-	if userAlreadyExistsErr != nil && userAlreadyExistsErr != sql.ErrNoRows {
-		fmt.Println("userAlreadyExistsErr", userAlreadyExistsErr)
-		return userresponse.RegisterResponse{}, userAlreadyExistsErr
+		return response, validationErrors
 	}
 
-	if validationErrors != nil {
-		return userresponse.RegisterResponse{}, validationErrors
+	newUser, storeErr := u.Repo.Store(req)
+	if storeErr != nil {
+		fmt.Println("storeErr", storeErr)
+		return response, storeErr
 	}
+	response.User = newUser
 
-	if userAlreadyExists.ID == 0 {
-		newUser, storeErr := s.Repo.Store(req)
-		if storeErr != nil {
-			fmt.Println("storeErr", storeErr)
-			return userresponse.RegisterResponse{}, storeErr
-		}
-		return userresponse.RegisterResponse{User: newUser}, nil
+	return response, nil
+}
+
+func (u User) phoneNumberIsUnique(phoneNumber string) bool {
+	row, err := u.Repo.FirstWhere("phone_number", phoneNumber)
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println("userAlreadyExistsErr", err)
+		return true
 	}
-	return userresponse.RegisterResponse{}, nil
+	return row.ID == 0
 }

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"gameapp/repository/mysql"
 )
 
@@ -20,7 +19,6 @@ var mysqlDatabase mysql.Mysql
 
 func init() {
 	if dbUsed == "mysql" {
-		fmt.Println(mysql.NewConnection())
 		mysqlDatabase.Connection = mysql.NewConnection()
 	}
 }

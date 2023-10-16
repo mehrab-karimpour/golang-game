@@ -10,11 +10,6 @@ type Mysql struct {
 	Connection *sql.DB
 }
 
-func (db Mysql) NewConnection() *sql.DB {
-	//TODO implement me
-	panic("implement me")
-}
-
 var mysqlConnection *sql.DB
 
 func init() {

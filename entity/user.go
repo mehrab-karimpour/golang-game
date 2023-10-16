@@ -6,5 +6,7 @@ type User struct {
 	LastName    string
 	PhoneNumber string
 	Password    string
+	CreatedAt   string
+	UpdatedAt   string
 	Games       []Game
 }

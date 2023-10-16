@@ -6,6 +6,7 @@ import (
 	_ "gameapp/repository/mysql"
 	"gameapp/request/userrequest"
 	"gameapp/service"
+	_ "gameapp/service"
 )
 
 func main() {
@@ -16,13 +17,14 @@ func main() {
 		Repo: myDb,
 	}
 
-	registerResponse, err := userService.Register(userrequest.RegisterRequest{
+	registerResponse, registerError := userService.Register(userrequest.RegisterRequest{
 		FirstName:   "mehrab",
 		LastName:    "karimpour",
 		Password:    "1212",
-		PhoneNumber: "09180131109",
+		PhoneNumber: "09180131105",
 	})
-	if err != nil {
+	if registerError != nil {
+		fmt.Println("registerError", registerError)
 		return
 	}
 

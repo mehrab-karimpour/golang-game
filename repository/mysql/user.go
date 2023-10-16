@@ -8,34 +8,55 @@ import (
 )
 
 func checkUsersExists(db *sql.DB) {
-	query := `CREATE TABLE users (  id int(11) NOT NULL, 
-              phone_number varchar(20) NOT NULL, 
-              first_name varchar(255) NOT NULL, 
-              last_name varchar(255) NOT NULL, 
-              password varchar(255) NOT NULL,
-              created_at timestamp NOT NULL DEFAULT current_timestamp(),
-              updated_at timestamp NOT NULL DEFAULT current_timestamp
-               )
-              ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;`
-	_, err := db.Exec(query)
-	if err != nil {
+	query := `CREATE TABLE IF NOT EXISTS users (
+id int(11) NOT NULL AUTO_INCREMENT,
+phone_number varchar(15) NOT NULL,
+first_name varchar(100) DEFAULT NULL,
+last_name varchar(100) DEFAULT NULL,
+password varchar(255) NOT NULL,
+created_at timestamp NOT NULL DEFAULT current_timestamp(),
+updated_at timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ `
+	_, execError := db.Exec(query)
+	if execError != nil {
+		fmt.Println("execError ", execError)
 		return
 	}
 }
 
 func (db Mysql) Store(u userrequest.RegisterRequest) (entity.User, error) {
+	var newUser = entity.User{}
 	checkUsersExists(db.Connection)
 
-	exec, err := db.Connection.Query("select  * from users")
-	if err != nil {
-		fmt.Println("error ", err)
-	}
-	fmt.Println(exec.Columns())
+	queryResult, queryExecErr := db.Connection.Exec("insert into users(phone_number,first_name,last_name,password) values (?,?,?,?)",
+		u.PhoneNumber, u.FirstName, u.LastName, u.Password)
 
-	err = exec.Close()
-	if err != nil {
-		fmt.Println("error ", err)
+	if queryExecErr != nil {
+		fmt.Println("error ", queryExecErr)
+		return newUser, queryExecErr
 	}
-	fmt.Println()
-	return entity.User{}, nil
+
+	currentRowId, latestIdErr := queryResult.LastInsertId()
+	if latestIdErr != nil {
+		fmt.Println("latestIdErr", latestIdErr)
+		return newUser, latestIdErr
+	}
+	stmt := db.Connection.QueryRow("SELECT  * FROM users where id=? LIMIT 1", currentRowId)
+
+	scanErr := stmt.Scan(&newUser.ID, &newUser.PhoneNumber, &newUser.FirstName,
+		&newUser.LastName, &newUser.Password, &newUser.CreatedAt, &newUser.UpdatedAt)
+	if scanErr != nil {
+		return newUser, scanErr
+	}
+	return newUser, nil
+}
+func (db Mysql) FirstWhere(col string, val any) (*entity.User, error) {
+	stmt := db.Connection.QueryRow("select * from users where "+col+" = ?", val)
+	user := entity.User{}
+	scanErr := stmt.Scan(&user.ID, &user.PhoneNumber, &user.FirstName, &user.LastName, &user.Password, &user.CreatedAt,
+		&user.UpdatedAt)
+	return &user, scanErr
+
 }

@@ -6,7 +6,7 @@ var otherRoute HttpRouteHandler
 
 func init() {
 	otherRoute.route = map[string]func(http.ResponseWriter, *http.Request){
-		"/other": otherHandler,
+		"POST@/other": otherHandler,
 	}
 }
 func GetOtherRoutes() map[string]func(http.ResponseWriter, *http.Request) {
@@ -15,4 +15,5 @@ func GetOtherRoutes() map[string]func(http.ResponseWriter, *http.Request) {
 
 func otherHandler(res http.ResponseWriter, req *http.Request) {
 	http.Error(res, "implement other handler ....", http.StatusOK)
+
 }

@@ -6,10 +6,10 @@ import (
 )
 
 type RegisterRequest struct {
-	FirstName   string `validate:"required"`
-	LastName    string `validate:"required"`
-	PhoneNumber string `validate:"required"`
-	Password    string `validate:"required"`
+	FirstName   string `validate:"required" json:"first_name"`
+	LastName    string `validate:"required" json:"last_name"`
+	PhoneNumber string `validate:"required" json:"phone_number"`
+	Password    string `validate:"required" json:"password"`
 }
 
 func (req RegisterRequest) Validate() error {

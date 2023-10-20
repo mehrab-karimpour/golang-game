@@ -38,11 +38,8 @@ func (db Mysql) Store(u userrequest.RegisterRequest) (entity.User, error) {
 		return newUser, queryExecErr
 	}
 
-	currentRowId, latestIdErr := queryResult.LastInsertId()
-	if latestIdErr != nil {
-		fmt.Println("latestIdErr", latestIdErr)
-		return newUser, latestIdErr
-	}
+	currentRowId, _ := queryResult.LastInsertId()
+
 	stmt := db.Connection.QueryRow("SELECT  * FROM users where id=? LIMIT 1", currentRowId)
 
 	scanErr := stmt.Scan(&newUser.ID, &newUser.PhoneNumber, &newUser.FirstName,

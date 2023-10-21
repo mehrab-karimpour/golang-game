@@ -2,6 +2,7 @@ package request
 
 import (
 	"fmt"
+	"gameapp/response"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -10,13 +11,14 @@ type Validator interface {
 }
 
 type ValidationErrors struct {
-	Errors []string
+	Errors response.Messages
 }
 
 func (val ValidationErrors) Validate(req Validator, customMessage *string) *ValidationErrors {
-
+	var messages = response.Messages{}
 	if customMessage != nil {
-		val.Errors = append(val.Errors, fmt.Sprintf(*customMessage))
+		messages[fmt.Sprintf(*customMessage)] = fmt.Sprintf(*customMessage)
+		val.Errors = messages
 		return &val
 	}
 
@@ -24,8 +26,9 @@ func (val ValidationErrors) Validate(req Validator, customMessage *string) *Vali
 	err := validate.Struct(req)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			val.Errors = append(val.Errors, fmt.Sprintf("%s is %s", err.StructField(), err.Tag()))
+			messages[err.StructField()] = fmt.Sprintf("%s is %s", err.StructField(), err.Tag())
 		}
+		val.Errors = messages
 		return &val
 	}
 	return nil

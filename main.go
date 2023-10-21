@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
+	"gameapp/handler"
 	_ "gameapp/repository/mysql"
-	"gameapp/route"
 	_ "gameapp/service"
 	"net/http"
 )
 
 func main() {
 
-	route.Route()
+	handler.Route()
 
 	err := http.ListenAndServe("localhost:8000", nil)
 	if err != nil {

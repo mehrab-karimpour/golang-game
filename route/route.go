@@ -38,7 +38,7 @@ func Route() {
 
 func (httpRouter HttpRouteHandler) post(handler func(w http.ResponseWriter, r *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL, r.Method, " ", time.Now().Format("15:4:5"))
+		fmt.Println(r.Method, r.URL, " ", time.Now().Format("15:4:5"))
 		if r.Method != http.MethodPost {
 			http.Error(w, `{"message":"method not allowed!"}`, http.StatusMethodNotAllowed)
 			return
@@ -48,7 +48,7 @@ func (httpRouter HttpRouteHandler) post(handler func(w http.ResponseWriter, r *h
 }
 func (httpRouter HttpRouteHandler) get(handler func(w http.ResponseWriter, r *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL, r.Method, " ", time.Now().Format("15:4:5"))
+		fmt.Println(r.Method, r.URL, " ", time.Now().Format("15:4:5"))
 		if r.Method != http.MethodGet {
 			http.Error(w, `{"message":"method not allowed!"}`, http.StatusMethodNotAllowed)
 			return

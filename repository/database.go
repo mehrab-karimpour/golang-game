@@ -12,7 +12,7 @@ type DatabaseInterface interface {
 }
 
 type Database struct {
-	connection *sql.DB
+	Connection *sql.DB
 }
 
 var mysqlDatabase mysql.Mysql

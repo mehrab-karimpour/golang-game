@@ -14,13 +14,6 @@ type User struct {
 
 func (u User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {
 	var response userresponse.RegisterResponse
-
-	validationErrors := req.Validate()
-	if validationErrors != nil || !u.phoneNumberIsUnique(req.PhoneNumber) {
-
-		return response, validationErrors
-	}
-
 	newUser, storeErr := u.Repo.Store(req)
 	if storeErr != nil {
 		fmt.Println("storeErr", storeErr)

@@ -1,26 +1,17 @@
 package userrequest
 
 import (
-	"fmt"
-	"github.com/go-playground/validator/v10"
+	"gameapp/request"
 )
 
 type RegisterRequest struct {
-	FirstName   string `validate:"required" json:"first_name"`
-	LastName    string `validate:"required" json:"last_name"`
-	PhoneNumber string `validate:"required" json:"phone_number"`
-	Password    string `validate:"required" json:"password"`
+	FirstName   string `validate:"required,min=3" json:"first_name"`
+	LastName    string `validate:"required,min=3" json:"last_name"`
+	PhoneNumber string `validate:"required,min=3" json:"phone_number"`
+	Password    string `validate:"required,min=3" json:"password"`
 }
 
-func (req RegisterRequest) Validate() error {
-	validate := validator.New()
-	phoneNumberIsUnique, err := req.checkPhoneNumberIsUnique()
-	if !phoneNumberIsUnique && err != nil {
-		return fmt.Errorf("unexpexted error : %w", err)
-	}
-	return validate.Struct(req)
-}
-
-func (req RegisterRequest) checkPhoneNumberIsUnique() (bool, error) {
-	return true, nil
+func (req RegisterRequest) Validate(customMessage *string) *request.ValidationErrors {
+	var validationErrors request.ValidationErrors
+	return validationErrors.Validate(req, customMessage)
 }

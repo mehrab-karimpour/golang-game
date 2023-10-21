@@ -7,6 +7,10 @@ import (
 	"gameapp/request/userrequest"
 )
 
+func init() {
+	checkUsersExists(mysqlConnection)
+}
+
 func checkUsersExists(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS users (
 id int(11) NOT NULL AUTO_INCREMENT,
@@ -28,7 +32,6 @@ updated_at timestamp NOT NULL DEFAULT current_timestamp(),
 
 func (db Mysql) Store(u userrequest.RegisterRequest) (entity.User, error) {
 	var newUser = entity.User{}
-	checkUsersExists(db.Connection)
 
 	queryResult, queryExecErr := db.Connection.Exec("insert into users(phone_number,first_name,last_name,password) values (?,?,?,?)",
 		u.PhoneNumber, u.FirstName, u.LastName, u.Password)

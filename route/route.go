@@ -1,34 +1,45 @@
-package handler
+package route
 
 import (
 	"fmt"
-	"golang.org/x/exp/maps"
 	"net/http"
 	"strings"
 	"time"
 )
 
+type HttpRoute map[string]func(http.ResponseWriter, *http.Request)
+
 type HttpRouteHandler struct {
-	route map[string]func(http.ResponseWriter, *http.Request)
+	Route HttpRoute
+}
+
+var HttpHandlers HttpRouteHandler
+
+func init() {
+	routes := HttpRoute{}
+	HttpHandlers = HttpRouteHandler{
+		Route: routes,
+	}
+	fmt.Println("route")
+}
+
+func (httpRouter HttpRouteHandler) Push(routes HttpRoute) {
+	for index, method := range routes {
+		httpRouter.Route[index] = method
+	}
 }
 
 func Route() {
-	var httpRouteHandler HttpRouteHandler
-	authRoutes := GetAuthRoutes()
-	otherRoutes := GetOtherRoutes()
-	httpRouteHandler.route = authRoutes
-	maps.Copy(httpRouteHandler.route, otherRoutes)
-
-	for fullPath, handler := range httpRouteHandler.route {
+	for fullPath, handler := range HttpHandlers.Route {
 		fullPathSlice := strings.Split(fullPath, "@")
 		method := fullPathSlice[0]
 		path := fullPathSlice[1]
 		switch method {
 		case http.MethodPost:
-			http.Handle(path, httpRouteHandler.post(handler))
+			http.Handle(path, HttpHandlers.post(handler))
 			break
 		case http.MethodGet:
-			http.Handle(path, httpRouteHandler.get(handler))
+			http.Handle(path, HttpHandlers.get(handler))
 			break
 		default:
 			panic(fmt.Sprintf("the method %s not suported!", method))

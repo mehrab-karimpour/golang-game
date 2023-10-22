@@ -17,7 +17,7 @@ type ValidationErrors struct {
 func (val ValidationErrors) Validate(req Validator, customMessage *string) *ValidationErrors {
 	var messages = response.Messages{}
 	if customMessage != nil {
-		messages[fmt.Sprintf(*customMessage)] = fmt.Sprintf(*customMessage)
+		messages["msg"] = fmt.Sprintf(*customMessage)
 		val.Errors = messages
 		return &val
 	}
@@ -31,6 +31,6 @@ func (val ValidationErrors) Validate(req Validator, customMessage *string) *Vali
 		val.Errors = messages
 		return &val
 	}
-	return nil
 
+	return nil
 }

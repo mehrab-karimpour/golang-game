@@ -107,6 +107,24 @@ func RegisterHandler(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func Profile(res http.ResponseWriter, req *http.Request) {
+
+	user, err := userService.Repo.FirstWhere("phone_number ", "09180131109")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	res.WriteHeader(http.StatusOK)
+	message := response.Messages{}
+	message["status"] = "user profile "
+	prepareResponse := response.Prepare(true, user, message)
+	_, err = fmt.Fprint(res, *prepareResponse)
+	if err != nil {
+		return
+	}
+
+}
+
 func bcryptPass(password string) string {
 	var err error
 	var passHashedByte []byte

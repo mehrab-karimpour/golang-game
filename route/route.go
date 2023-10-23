@@ -20,7 +20,6 @@ func init() {
 	HttpHandlers = HttpRouteHandler{
 		Route: routes,
 	}
-	fmt.Println("route")
 }
 
 func (httpRouter HttpRouteHandler) Push(routes HttpRoute) {

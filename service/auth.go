@@ -14,7 +14,7 @@ func (auth Auth) GenerateToken(user entity.User) *string {
 	secretKey := []byte("my-secret-key")
 	mapClaims := jwt.MapClaims{
 		"username": user.ID,
-		"exp":      time.Now().Add(time.Second + 2).Unix(),
+		"exp":      time.Now().Add(time.Hour + 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, mapClaims)

@@ -53,7 +53,9 @@ func LoginHandler(res http.ResponseWriter, req *http.Request) {
 		"msg": "you logged in successfully...",
 	}
 	res.WriteHeader(http.StatusCreated)
-	responsePrepared := response.Prepare(true, nil, successMessage)
+
+	authToken := userService.Auth.GenerateToken(*user)
+	responsePrepared := response.Prepare(true, *authToken, successMessage)
 	_, err = fmt.Fprint(res, *responsePrepared)
 	if err != nil {
 		return

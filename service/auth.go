@@ -10,8 +10,9 @@ import (
 
 type Auth struct{}
 
+var secretKey = []byte("my-secret-key")
+
 func (auth Auth) GenerateToken(user entity.User) *string {
-	secretKey := []byte("my-secret-key")
 	mapClaims := jwt.MapClaims{
 		"username": user.ID,
 		"exp":      time.Now().Add(time.Hour + 24).Unix(),
@@ -28,7 +29,6 @@ func (auth Auth) GenerateToken(user entity.User) *string {
 }
 
 func (auth Auth) TokenIsValid(tokenStr string) bool {
-	secretKey := []byte("my-secret-key")
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
@@ -41,7 +41,7 @@ func (auth Auth) TokenIsValid(tokenStr string) bool {
 }
 
 func (auth Auth) GetAuth(tokenStr string) *any {
-	secretKey := []byte("my-secret-key")
+
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})

@@ -10,6 +10,7 @@ import (
 
 type User struct {
 	Repo repository.User
+	Auth
 }
 
 func (u User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {

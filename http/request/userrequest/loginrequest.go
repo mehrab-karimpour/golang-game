@@ -1,6 +1,6 @@
 package userrequest
 
-import "gameapp/request"
+import "gameapp/http/request"
 
 type LoginRequest struct {
 	PhoneNumber string `validate:"required,min=11,max=11" json:"phone_number"`

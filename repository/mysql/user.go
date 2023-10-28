@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"gameapp/entity"
-	"gameapp/request/userrequest"
+	"gameapp/http/request/userrequest"
 )
 
 func init() {

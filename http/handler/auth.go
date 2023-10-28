@@ -6,17 +6,21 @@ import (
 	"fmt"
 	"gameapp/http/request/userrequest"
 	"gameapp/http/response"
+	"gameapp/http/response/userresponse"
 	"gameapp/repository"
 	"gameapp/service"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 var userService service.User
+var userAuthService service.Auth
 
 func init() {
 	userService.Repo = repository.DataBaseService()
+	userService.UserAuth = userAuthService.Prepare()
 }
 
 func LoginHandler(res http.ResponseWriter, req *http.Request) {
@@ -54,8 +58,13 @@ func LoginHandler(res http.ResponseWriter, req *http.Request) {
 	}
 	res.WriteHeader(http.StatusCreated)
 
-	authToken := userService.Auth.GenerateToken(*user)
-	responsePrepared := response.Prepare(true, *authToken, successMessage)
+	accessToken := userService.UserAuth.GenerateAccessToken(int(user.ID))
+	refreshToken := userService.UserAuth.GenerateRefreshToken(int(user.ID))
+	loginResponse := userresponse.Login{
+		AccessToken:  *accessToken,
+		RefreshToken: *refreshToken,
+	}
+	responsePrepared := response.Prepare(true, loginResponse, successMessage)
 	_, err = fmt.Fprint(res, *responsePrepared)
 	if err != nil {
 		return
@@ -111,7 +120,19 @@ func RegisterHandler(res http.ResponseWriter, req *http.Request) {
 
 func Profile(res http.ResponseWriter, req *http.Request) {
 
-	user, err := userService.Repo.FirstWhere("phone_number ", "09180131109")
+	var auth any = 0
+	var token = ""
+	authHeader := req.Header.Get("Authorization")
+	authHeaders := strings.Split(authHeader, "Bearer ")
+	if len(authHeaders) > 1 {
+		token = authHeaders[1]
+	}
+
+	if userService.UserAuth.TokenIsValid(token) {
+		auth = userService.UserAuth.GetAuth(token)
+	}
+
+	user, err := userService.Repo.FirstWhere("id", auth)
 	if err != nil {
 		fmt.Println(err)
 	}

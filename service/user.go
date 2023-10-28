@@ -3,14 +3,34 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"gameapp/http/request/userrequest"
+	"gameapp/http/response/userresponse"
 	"gameapp/repository"
-	"gameapp/request/userrequest"
-	"gameapp/response/userresponse"
 )
 
+type AuthUserInterface interface {
+	AuthPrepare
+	AuthGenerator
+	AuthValidator
+}
+
+type AuthPrepare interface {
+	Prepare() Auth
+}
+
+type AuthGenerator interface {
+	GenerateAccessToken(ID int) *string
+	GenerateRefreshToken(ID int) *string
+}
+
+type AuthValidator interface {
+	TokenIsValid(tokenStr string) bool
+	GetAuth(tokenStr string) *any
+}
+
 type User struct {
-	Repo repository.User
-	Auth
+	Repo     repository.User
+	UserAuth AuthUserInterface
 }
 
 func (u User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {

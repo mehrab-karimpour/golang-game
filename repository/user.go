@@ -2,7 +2,7 @@ package repository
 
 import (
 	"gameapp/entity"
-	"gameapp/request/userrequest"
+	"gameapp/http/request/userrequest"
 )
 
 type User interface {

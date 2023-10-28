@@ -13,7 +13,7 @@ type Auth struct {
 	refreshExpirationTime int64
 }
 
-func (auth Auth) Prepare() Auth {
+func (auth Auth) New() Auth {
 	day := time.Hour * 24
 	auth.signKey = []byte("my-secret-key")
 	auth.accessExpirationTime = time.Now().Add(day * 7).Unix()

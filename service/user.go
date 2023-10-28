@@ -15,7 +15,7 @@ type AuthUserInterface interface {
 }
 
 type AuthPrepare interface {
-	Prepare() Auth
+	New() Auth
 }
 
 type AuthGenerator interface {

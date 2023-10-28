@@ -20,7 +20,7 @@ var userAuthService service.Auth
 
 func init() {
 	userService.Repo = repository.DataBaseService()
-	userService.UserAuth = userAuthService.Prepare()
+	userService.UserAuth = userAuthService.New()
 }
 
 func LoginHandler(res http.ResponseWriter, req *http.Request) {

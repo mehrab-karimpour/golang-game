@@ -2,6 +2,6 @@ package userresponse
 
 import "gameapp/entity"
 
-type RegisterResponse struct {
+type Register struct {
 	User entity.User
 }

@@ -1,23 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"gameapp/http/handler"
+	"gameapp/repository"
 	_ "gameapp/repository/mysql"
-	"gameapp/route"
 	_ "gameapp/route/authroute"
 	_ "gameapp/route/otherroute"
+	"gameapp/service"
 	_ "gameapp/service"
-	"net/http"
+	"github.com/labstack/echo/v4"
 )
+
+var userService service.User
+var userAuthService service.Auth
+
+func init() {
+	userService.Repo = repository.DataBaseService()
+	userService.UserAuth = userAuthService.New()
+}
 
 func main() {
 
-	route.Route()
+	e := echo.New()
 
-	err := http.ListenAndServe("localhost:8000", nil)
-	if err != nil {
-		fmt.Println(err)
+	e.POST("/auth/login", handler.Login)
+	e.POST("/auth/register", handler.Register)
 
-		return
-	}
+	_ = e.Start(":8000")
 }

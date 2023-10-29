@@ -3,8 +3,8 @@ package service
 import (
 	"database/sql"
 	"fmt"
+	"gameapp/entity"
 	"gameapp/http/request/userrequest"
-	"gameapp/http/response/userresponse"
 	"gameapp/repository"
 )
 
@@ -33,16 +33,15 @@ type User struct {
 	UserAuth AuthUserInterface
 }
 
-func (u User) Register(req userrequest.RegisterRequest) (userresponse.RegisterResponse, error) {
-	var response userresponse.RegisterResponse
+func (u User) Register(req userrequest.RegisterRequest) (entity.User, error) {
 	newUser, storeErr := u.Repo.Store(req)
 	if storeErr != nil {
 		fmt.Println("storeErr", storeErr)
-		return response, storeErr
-	}
-	response.User = newUser
 
-	return response, nil
+		return newUser, storeErr
+	}
+
+	return newUser, nil
 }
 
 func (u User) phoneNumberIsUnique(phoneNumber string) bool {

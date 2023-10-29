@@ -1,16 +1,14 @@
 package handler
 
 import (
-	"database/sql"
-	"encoding/json"
 	"fmt"
 	"gameapp/http/request/userrequest"
 	"gameapp/http/response"
 	"gameapp/http/response/userresponse"
 	"gameapp/repository"
 	"gameapp/service"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -23,99 +21,40 @@ func init() {
 	userService.UserAuth = userAuthService.New()
 }
 
-func LoginHandler(res http.ResponseWriter, req *http.Request) {
-	var loginRequest userrequest.LoginRequest
-	var err error
+func Login(c echo.Context) error {
+	var req userrequest.LoginRequest
+	var lRes userresponse.Login
+	var res response.HttpResponse
 
-	bodyData, err := io.ReadAll(req.Body)
+	_ = c.Bind(&req)
+
+	user, err := userService.Repo.FirstWhere("phone_number", req.PhoneNumber)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
+	lRes.RefreshToken = *userService.UserAuth.GenerateRefreshToken(int(user.ID))
+	lRes.AccessToken = *userService.UserAuth.GenerateAccessToken(int(user.ID))
 
-	_ = json.Unmarshal(bodyData, &loginRequest)
-
-	if validationErrors := loginRequest.Validate(nil); validationErrors != nil {
-		responsePrepared := response.Prepare(false, nil, validationErrors.Errors)
-		http.Error(res, *responsePrepared, http.StatusUnprocessableEntity)
-		return
-	}
-
-	failedMessage := "mobile or password is not correct"
-	user, err := userService.Repo.FirstWhere("phone_number", loginRequest.PhoneNumber)
-
-	userDataIsUnprocessable := err == sql.ErrNoRows || !comparePass(user.Password, loginRequest.Password) || user.PhoneNumber != loginRequest.PhoneNumber
-
-	if userDataIsUnprocessable {
-		validationErrors := loginRequest.Validate(&failedMessage)
-		responsePrepared := response.Prepare(false, nil, validationErrors.Errors)
-		http.Error(res, *responsePrepared, http.StatusUnprocessableEntity)
-		return
-	}
-
-	var successMessage = response.Messages{
-		"msg": "you logged in successfully...",
-	}
-	res.WriteHeader(http.StatusCreated)
-
-	accessToken := userService.UserAuth.GenerateAccessToken(int(user.ID))
-	refreshToken := userService.UserAuth.GenerateRefreshToken(int(user.ID))
-	loginResponse := userresponse.Login{
-		AccessToken:  *accessToken,
-		RefreshToken: *refreshToken,
-	}
-	responsePrepared := response.Prepare(true, loginResponse, successMessage)
-	_, err = fmt.Fprint(res, *responsePrepared)
-	if err != nil {
-		return
-	}
+	res.Message = "you logged in success fully"
+	res.Status = true
+	res.Data = lRes
+	_ = c.JSON(http.StatusOK, res)
+	return nil
 }
 
-func RegisterHandler(res http.ResponseWriter, req *http.Request) {
-	messages := response.Messages{}
-	reqData, readErr := io.ReadAll(req.Body)
-	if readErr != nil {
-		fmt.Println(readErr)
-		return
-	}
+func Register(c echo.Context) error {
+	var req userrequest.RegisterRequest
+	var res userresponse.Register
+	var httpRes response.HttpResponse
+	var err error
 
-	var registerReq userrequest.RegisterRequest
-	err := json.Unmarshal(reqData, &registerReq)
-	if err != nil {
-		fmt.Println("Unmarshal error registerHandler", err)
-	}
+	_ = c.Bind(&req)
+	req.Password = bcryptPass(req.Password)
+	res.User, err = userService.Repo.Store(req)
+	httpRes.Data = res
+	err = c.JSON(http.StatusCreated, httpRes)
 
-	if validationErrors := registerReq.Validate(nil); validationErrors != nil {
-		preparedResponse := response.Prepare(false, nil, validationErrors.Errors)
-		http.Error(res, *preparedResponse, http.StatusUnprocessableEntity)
-		return
-	}
-
-	row, err := userService.Repo.FirstWhere("phone_number", registerReq.PhoneNumber)
-
-	if err != sql.ErrNoRows && row.ID != 0 {
-		message := fmt.Sprint("this mobile already registered!")
-		validationErrors := registerReq.Validate(&message)
-		preparedResponse := response.Prepare(false, nil, validationErrors.Errors)
-		http.Error(res, *preparedResponse, http.StatusUnprocessableEntity)
-		return
-	}
-
-	registerReq.Password = bcryptPass(registerReq.Password)
-	user, err := userService.Repo.Store(registerReq)
-
-	if err != nil {
-		messages["storeError"] = err.Error()
-		preparedResponse := response.Prepare(false, nil, messages)
-		http.Error(res, *preparedResponse, http.StatusServiceUnavailable)
-		return
-	}
-
-	preparedResponse := response.Prepare(false, user, messages)
-	_, err = fmt.Fprint(res, *preparedResponse)
-	if err != nil {
-		return
-	}
+	return err
 }
 
 func Profile(res http.ResponseWriter, req *http.Request) {
@@ -137,15 +76,16 @@ func Profile(res http.ResponseWriter, req *http.Request) {
 		fmt.Println(err)
 	}
 
+	res.Header().Add("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
 	message := response.Messages{}
 	message["status"] = "user profile "
 	prepareResponse := response.Prepare(true, user, message)
-	_, err = fmt.Fprint(res, *prepareResponse)
+	_, err = res.Write([]byte(*prepareResponse))
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
-
 }
 
 func bcryptPass(password string) string {

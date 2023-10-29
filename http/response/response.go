@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+type HttpResponse struct {
+	Message string `json:"message"`
+	Status  `json:"status"`
+	Data    any `json:"data"`
+}
 type Messages map[string]string
 type Response map[string]any
 type Status bool

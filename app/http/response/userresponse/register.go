@@ -1,6 +1,6 @@
 package userresponse
 
-import "gameapp/entity"
+import "gameapp/app/entity"
 
 type Register struct {
 	User entity.User

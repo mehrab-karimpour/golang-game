@@ -3,8 +3,8 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"gameapp/entity"
-	"gameapp/http/request/userrequest"
+	"gameapp/app/entity"
+	"gameapp/app/http/request/userrequest"
 )
 
 func init() {

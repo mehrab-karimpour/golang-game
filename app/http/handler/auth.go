@@ -2,16 +2,20 @@ package handler
 
 import (
 	"fmt"
-	"gameapp/http/request/userrequest"
-	"gameapp/http/response"
-	"gameapp/http/response/userresponse"
-	"gameapp/repository"
-	"gameapp/service"
+	"gameapp/app/http/request/userrequest"
+	"gameapp/app/http/response"
+	"gameapp/app/http/response/userresponse"
+	"gameapp/app/repository"
+	"gameapp/app/service"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
 )
+
+type AppContext struct {
+	echo.Context
+}
 
 var userService service.User
 var userAuthService service.Auth

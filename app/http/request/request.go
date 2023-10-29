@@ -2,7 +2,7 @@ package request
 
 import (
 	"fmt"
-	"gameapp/http/response"
+	"gameapp/app/http/response"
 	"github.com/go-playground/validator/v10"
 )
 

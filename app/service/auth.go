@@ -2,10 +2,13 @@ package service
 
 import (
 	"fmt"
+	"gameapp/config"
 	"github.com/golang-jwt/jwt/v5"
 	_ "github.com/golang-jwt/jwt/v5"
 	"time"
 )
+
+var authConfig config.AuthConfig
 
 type Auth struct {
 	signKey               []byte

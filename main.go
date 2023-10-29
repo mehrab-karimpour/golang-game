@@ -1,23 +1,9 @@
 package main
 
 import (
-	"gameapp/http/handler"
-	"gameapp/repository"
-	_ "gameapp/repository/mysql"
-	_ "gameapp/route/authroute"
-	_ "gameapp/route/otherroute"
-	"gameapp/service"
-	_ "gameapp/service"
+	"gameapp/app/http/handler"
 	"github.com/labstack/echo/v4"
 )
-
-var userService service.User
-var userAuthService service.Auth
-
-func init() {
-	userService.Repo = repository.DataBaseService()
-	userService.UserAuth = userAuthService.New()
-}
 
 func main() {
 

@@ -3,9 +3,9 @@ package service
 import (
 	"database/sql"
 	"fmt"
-	"gameapp/entity"
-	"gameapp/http/request/userrequest"
-	"gameapp/repository"
+	"gameapp/app/entity"
+	"gameapp/app/http/request/userrequest"
+	"gameapp/app/repository"
 )
 
 type AuthUserInterface interface {

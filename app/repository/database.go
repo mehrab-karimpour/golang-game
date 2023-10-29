@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"gameapp/repository/mysql"
+	"gameapp/app/repository/mysql"
 )
 
 const dbUsed = "mysql"

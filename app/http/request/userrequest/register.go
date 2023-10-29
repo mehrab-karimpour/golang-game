@@ -1,6 +1,6 @@
 package userrequest
 
-import "gameapp/http/request"
+import "gameapp/app/http/request"
 
 type RegisterRequest struct {
 	FirstName   string `validate:"required,min=3" json:"first_name"`

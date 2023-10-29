@@ -1,7 +1,7 @@
 package authroute
 
 import (
-	"gameapp/http/handler"
+	"gameapp/app/http/handler"
 	"gameapp/route"
 )
 

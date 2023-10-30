@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"database/sql"
 	"fmt"
+	"gameapp/app/entity"
 	"gameapp/app/http/request/userrequest"
 	"gameapp/app/http/response"
 	"gameapp/app/http/response/userresponse"
@@ -33,15 +35,21 @@ func Login(c echo.Context) error {
 	_ = c.Bind(&req)
 
 	user, err := userService.Repo.FirstWhere("phone_number", req.PhoneNumber)
-	if err != nil {
-		return err
+	fmt.Println(user, err)
+
+	if (err != nil && err == sql.ErrNoRows) || comparePass(user.Password, req.Password) {
+		fmt.Println(err)
+		res.Message = err.Error()
+		goto sendResponse
 	}
 	lRes.RefreshToken = *userService.UserAuth.GenerateRefreshToken(int(user.ID))
 	lRes.AccessToken = *userService.UserAuth.GenerateAccessToken(int(user.ID))
 
-	res.Message = "you logged in success fully"
+	res.Message = "you logged in successfully"
 	res.Status = true
 	res.Data = lRes
+
+sendResponse:
 	_ = c.JSON(http.StatusOK, res)
 	return nil
 }
@@ -61,35 +69,35 @@ func Register(c echo.Context) error {
 	return err
 }
 
-func Profile(res http.ResponseWriter, req *http.Request) {
+func Profile(c echo.Context) error {
+	var auth *any
+	var user *entity.User
+	var res response.HttpResponse
+	var statusCode int
+	var err error
 
-	var auth any = 0
-	var token = ""
-	authHeader := req.Header.Get("Authorization")
-	authHeaders := strings.Split(authHeader, "Bearer ")
-	if len(authHeaders) > 1 {
-		token = authHeaders[1]
+	authorization := c.Request().Header.Get("Authorization")
+	token := strings.Split(authorization, "Bearer ")
+	tokenString := token[1]
+
+	if userService.UserAuth.TokenIsValid(tokenString) {
+		auth = userService.UserAuth.GetAuth(tokenString)
+	} else {
+		res.Status = false
+		statusCode = http.StatusUnauthorized
+		goto returnResponse
 	}
 
-	if userService.UserAuth.TokenIsValid(token) {
-		auth = userService.UserAuth.GetAuth(token)
-	}
-
-	user, err := userService.Repo.FirstWhere("id", auth)
+	user, err = userService.Repo.FirstWhere("id", *auth)
 	if err != nil {
 		fmt.Println(err)
 	}
+	res.Data = user
+	statusCode = http.StatusOK
+returnResponse:
+	err = c.JSON(statusCode, res)
 
-	res.Header().Add("Content-Type", "application/json")
-	res.WriteHeader(http.StatusOK)
-	message := response.Messages{}
-	message["status"] = "user profile "
-	prepareResponse := response.Prepare(true, user, message)
-	_, err = res.Write([]byte(*prepareResponse))
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	return err
 }
 
 func bcryptPass(password string) string {

@@ -1,34 +1,10 @@
 package mysql
 
 import (
-	"database/sql"
 	"fmt"
 	"gameapp/app/entity"
 	"gameapp/app/http/request/userrequest"
 )
-
-func init() {
-	checkUsersExists(mysqlConnection)
-}
-
-func checkUsersExists(db *sql.DB) {
-	query := `CREATE TABLE IF NOT EXISTS users (
-id int(11) NOT NULL AUTO_INCREMENT,
-phone_number varchar(15) NOT NULL,
-first_name varchar(100) DEFAULT NULL,
-last_name varchar(100) DEFAULT NULL,
-password varchar(255) NOT NULL,
-created_at timestamp NOT NULL DEFAULT current_timestamp(),
-updated_at timestamp NOT NULL DEFAULT current_timestamp(),
- PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
- `
-	_, execError := db.Exec(query)
-	if execError != nil {
-		fmt.Println("execError ", execError)
-		return
-	}
-}
 
 func (db Mysql) Store(u userrequest.RegisterRequest) (entity.User, error) {
 	var newUser = entity.User{}

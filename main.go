@@ -9,8 +9,10 @@ func main() {
 
 	e := echo.New()
 
-	e.POST("/auth/login", handler.Login)
-	e.POST("/auth/register", handler.Register)
+	auth := e.Group("/auth/")
+	auth.POST("login", handler.Login)
+	auth.POST("register", handler.Register)
+	auth.GET("profile", handler.Profile)
 
 	_ = e.Start(":8000")
 }

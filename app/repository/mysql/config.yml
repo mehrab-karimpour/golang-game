@@ -1,0 +1,12 @@
+development:
+  dialect: mysql
+  datasource: root:root@tcp(0.0.0.0:3306)/gameapp?parseTime=true
+  dir: app/repository/mysql/migrations
+  table: migrations
+
+# sql-migrate down -config=app/repository/mysql/config.yml
+#production:
+#  dialect: mysql
+#  datasource: host=localhost root@/gameapp password=root sslmode=disable
+#  dir: migrations/mysql
+#  table: migrations

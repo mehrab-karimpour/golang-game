@@ -2,8 +2,8 @@ package request
 
 import (
 	"fmt"
-	"gameapp/app/http/response"
 	"github.com/go-playground/validator/v10"
+	"reflect"
 )
 
 type Validator interface {
@@ -11,14 +11,13 @@ type Validator interface {
 }
 
 type ValidationErrors struct {
-	Errors response.Messages
+	Error *string
 }
 
 func (val ValidationErrors) Validate(req Validator, customMessage *string) *ValidationErrors {
-	var messages = response.Messages{}
+
 	if customMessage != nil {
-		messages["msg"] = fmt.Sprintf(*customMessage)
-		val.Errors = messages
+		val.Error = customMessage
 		return &val
 	}
 
@@ -26,11 +25,24 @@ func (val ValidationErrors) Validate(req Validator, customMessage *string) *Vali
 	err := validate.Struct(req)
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
-			messages[err.StructField()] = fmt.Sprintf("%s is %s", err.StructField(), err.Tag())
+			msg := fmt.Sprintf("%s is %s", GetTag(req, err.StructField()), err.Tag())
+			val.Error = &msg
+			return &val
 		}
-		val.Errors = messages
-		return &val
 	}
 
 	return nil
+}
+
+func GetTag(req Validator, Field string) string {
+	userType := reflect.TypeOf(req)
+	for i := 0; i < userType.NumField(); i++ {
+		field := userType.Field(i)
+		jsonTag := field.Tag.Get("json")
+
+		if Field == field.Name {
+			return jsonTag
+		}
+	}
+	return Field
 }

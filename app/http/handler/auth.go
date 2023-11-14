@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"gameapp/app/entity"
+	"gameapp/app/http/request"
 	"gameapp/app/http/request/userrequest"
 	"gameapp/app/http/response"
 	"gameapp/app/http/response/userresponse"
@@ -28,17 +29,26 @@ func init() {
 }
 
 func Login(c echo.Context) error {
+	var validationError *request.ValidationErrors
 	var req userrequest.LoginRequest
 	var lRes userresponse.Login
 	var res response.HttpResponse
+	var user *entity.User
+	var err error
+	var httpCode = http.StatusOK
 
 	_ = c.Bind(&req)
+	validationError = req.Validate(nil)
+	if validationError != nil {
+		res.Message = *validationError.Error
+		httpCode = http.StatusUnprocessableEntity
+		goto sendResponse
+	}
 
-	user, err := userService.Repo.FirstWhere("phone_number", req.PhoneNumber)
-	fmt.Println(user, err)
+	user, err = userService.Repo.FirstWhere("phone_number", req.PhoneNumber)
 
 	if (err != nil && err == sql.ErrNoRows) || comparePass(user.Password, req.Password) {
-		fmt.Println(err)
+		httpCode = http.StatusBadRequest
 		res.Message = err.Error()
 		goto sendResponse
 	}
@@ -50,7 +60,7 @@ func Login(c echo.Context) error {
 	res.Data = lRes
 
 sendResponse:
-	_ = c.JSON(http.StatusOK, res)
+	_ = c.JSON(httpCode, res)
 	return nil
 }
 
@@ -58,13 +68,23 @@ func Register(c echo.Context) error {
 	var req userrequest.RegisterRequest
 	var res userresponse.Register
 	var httpRes response.HttpResponse
+	var validationError *request.ValidationErrors
+	var httpCode = http.StatusCreated
 	var err error
 
 	_ = c.Bind(&req)
+	validationError = req.Validate(nil)
+	if validationError != nil {
+		httpRes.Message = *validationError.Error
+		httpCode = http.StatusUnprocessableEntity
+		goto response
+	}
+
 	req.Password = bcryptPass(req.Password)
 	res.User, err = userService.Repo.Store(req)
 	httpRes.Data = res
-	err = c.JSON(http.StatusCreated, httpRes)
+response:
+	err = c.JSON(httpCode, httpRes)
 
 	return err
 }
